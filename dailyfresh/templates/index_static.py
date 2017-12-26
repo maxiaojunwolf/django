@@ -1,6 +1,6 @@
 import re
 #实现静态文件路径替换
-filename = 'list.html'
+filename = 'index.html'
 with open(filename) as f:
     msg = f.read()
     # 替换静态文件,导入路径

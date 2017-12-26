@@ -128,11 +128,9 @@ class LoginView(View):
             request.session.set_expiry(3600*24)
         context = {'user_name':user_name}
         next = request.GET.get('next')
-        print(next)
         if next is None:
             # 返回主页
-            print(123465)
-            return redirect(reverse('goods:index'),context)
+            return render(request,'index.html',context)
         else:
             return redirect(next)
         # return HttpResponse('ok')

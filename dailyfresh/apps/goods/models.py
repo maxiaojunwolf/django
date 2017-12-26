@@ -94,7 +94,6 @@ class IndexCategoryGoodsBanner(BaseModel):
     index = models.SmallIntegerField(default=0, verbose_name="顺序")
 
     class Meta:
-        # 自定义数据表的名字是为了和模型类名实现解耦
         db_table = "df_index_category_goods"
         verbose_name = "主页分类展示商品"
         verbose_name_plural = verbose_name

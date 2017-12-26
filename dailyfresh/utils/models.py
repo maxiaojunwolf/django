@@ -7,4 +7,4 @@ class BaseModel(models.Model):
     update_time = models.DateTimeField(auto_now=True, verbose_name="更新时间")
 
     class Meta:
-        abstract = True  # 说明是抽象模型类,不会迁移生成数据表
+        abstract = True  # 说明是抽象模型类

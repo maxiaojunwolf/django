@@ -23,7 +23,7 @@
 		<ul class="subnav fl">
             {# 商品类别信息 #}
             {% for category in categorys %}
-                <li><a href="{% url 'goods:list' category.id 1 %}?sort='price' " class="{{ category.logo }}">{{ category.name }}</a></li>
+                <li><a href="#model0{{ forloop.counter }}" class="{{ category.logo }}">{{ category.name }}</a></li>
             {% endfor %}
 		</ul>
 		<div class="slide fl">
@@ -63,7 +63,7 @@
                 {% for image_banner in category.image_banners %}
                     <li>
                         <h4><a href="#">{{ image_banner.sku.name }}</a></h4>
-                        <a href="{% url 'goods:detail' image_banner.sku.id %}"><img src="{{ image_banner.sku.default_image.url }}"></a>
+                        <a href="#"><img src="{{ image_banner.sku.default_image.url }}"></a>
                         <div class="prize">¥ {{ image_banner.sku.price }}</div>
 				    </li>
                 {% endfor %}

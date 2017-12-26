@@ -14,8 +14,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sys
 
-# 设置‘根’路径为项目名dailyfresh
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,12 +31,10 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-
 # Application definition
 
 INSTALLED_APPS = (
     'django.contrib.admin',
-    # django 自带的用户认证系统
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -46,7 +42,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 添加富文本编辑应用，把插件的应用写在上边
     'tinymce',
-    'haystack',# 搜索引擎的框架负责完成和django和whoosh的交互
     'users',
     'goods',
     'orders',
@@ -93,12 +88,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dailyfresh',
-        'HOST':'192.168.8.133',
-        # 'HOST':'localhost',
+        # 'HOST':'192.168.8.133',
+        'HOST':'localhost',
         'PORT':'3306',
         'USER':'root',
-        'PASSWORD':'123456',
-        # 'PASSWORD':'mysql',
+        # 'PASSWORD':'123456',
+        'PASSWORD':'mysql',
     }
 }
 
@@ -125,8 +120,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
-
-# 引导迁移时执行我们自定义的user而不是django内部的user
 AUTH_USER_MODEL = 'users.User'
 # 配置邮件参数
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 导入邮件模块
@@ -162,7 +155,7 @@ DEFAULT_FILE_STORAGE ='utils.fastdfs.storage.FastDFSStorage'
 
 # 设置自定义就的存储类的配置文件
 CLIENT_CONF = os.path.join(BASE_DIR,'utils/fastdfs/client.conf')
-SERVER_IP = 'http://192.168.8.133:8888/'
+SERVER_IP = '192.168.8.133:8888'
 
 # 添加tinymce配置
 TINYMCE_DEFAULT_CONFIG = {
@@ -170,16 +163,3 @@ TINYMCE_DEFAULT_CONFIG = {
     'width':600,
     'height':400,
 }
-#配置搜索引擎
-HAYSTACK_CONNECTIONS = {
-  'default': {
-      # 使用whoosh引擎
-      # 因为默认的是英文词库，在这里我们使用jieba中文词库所以去掉whoosh_cn_backend的cn
-      'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-      # 索引文件路径
-      'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-  }
-}
-# 当添加、修改、删除数据时，自动生成索引
-
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
