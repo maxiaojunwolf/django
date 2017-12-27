@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.contrib.auth import authenticate, login, logout
@@ -20,6 +21,7 @@ from celery_tasks.tasks import send_active_email
 from dailyfresh import settings
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
+from utils.models import BaseCartView
 from utils.views import LoginRequiredMixin
 
 
@@ -98,7 +100,7 @@ class ActiveView(View):
         user.save()
         # 返回
         return redirect(reverse('goods:index'))
-class LoginView(View):
+class LoginView(BaseCartView):
     '''登陆'''
     # 请求get登陆界面
     def get(self,request):
@@ -128,12 +130,44 @@ class LoginView(View):
             request.session.set_expiry(3600*24)
         context = {'user_name':user_name}
         next = request.GET.get('next')
+        # 在登陆成功后读取cookies数据添加到购物车redis里
+        # 获取购物车缓存
+        cookie_cart = request.COOKIES.get('cart')
+        # 判断不为空转换成json字典
+        if cookie_cart:
+            cookie_cart = json.loads(cookie_cart)
+        else:
+            cookie_cart = {}
+        # 数据查询
+        redis_conn = get_redis_connection('default')
+        redis_cart = redis_conn.hgetall('cart_%s'%request.user.id)
+        if redis_cart:
+            for key ,val in cookie_cart.items():
+            # 数量校验
+                try:
+                    sku = GoodsSKU.objects.get(id=int(key))
+                except GoodsSKU.DoesNotExist:
+                    pass
+                else:
+                    # 该商品存在的话则查看redis购物车数据
+                    # 注意redis字典里的key和value都是byte类型所以查询的时候必须先转换成byte类型
+                    redis_count = redis_cart.get(key.encode())
+                    if not redis_count:
+                        redis_count = 0
+                    redis_cart[key] = int(redis_count) + val
+        # 添加到redis
+            redis_conn.hmset('cart_%s'%request.user.id,redis_cart)
         if next is None:
             # 返回主页
-            return render(request,'index.html',context)
+            response = redirect(reverse('goods:index'),context)
+        elif next == '/orders/place':
+            response = redirect(reverse('cart:info'))
         else:
-            return redirect(next)
-        # return HttpResponse('ok')
+            response=redirect(next)
+        # 删除缓存
+        response.delete_cookie('cart')
+        return response
+
 # 退出登陆
 class LogoutView(View):
     '''逻辑请求仅仅包含get,退出登陆返回一个页面'''

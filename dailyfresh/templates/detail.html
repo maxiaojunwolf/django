@@ -12,7 +12,7 @@
 				<span></span>
 				<ul class="subnav">
                     {% for category in categorys %}
-                    <li><a href="#" class="{{ category.logo }}">{{ category.name }}</a></li>
+                    <li><a href="{% url 'goods:list' category.id 1 %}" class="{{ category.logo }}">{{ category.name }}</a></li>
                     {% endfor %}
 				</ul>
 			</div>
@@ -29,7 +29,9 @@
 
 	<div class="goods_detail_con clearfix">
 		<div class="goods_detail_pic fl"><img src="{{ sku.default_image.url }}"></div>
-
+        <form action="{% url 'orders:place' %}" method="post">
+        {% csrf_token %}
+            <input type="hidden" name="sku_ids" value="{{ sku.id }}">
 		<div class="goods_detail_list fr">
 			<h3>{{ sku.name}}</h3>
 			<p>{{ sku.title }}</p>
@@ -42,7 +44,7 @@
                 <p>其他规格:</p>
                 <ul>
                     {% for sku in other_skus %}
-{#                        <li><a href="{% url 'goods:detail' sku.id %}">{{ sku.price }}/{{ sku.unit }}</a></li>#}
+                        <li><a href="{% url 'goods:detail' sku.id %}">{{ sku.price }}/{{ sku.unit }}</a></li>#}
                     {% endfor %}
                 </ul>
             </div>
@@ -50,17 +52,18 @@
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：</div>
 				<div class="num_add fl">
-					<input type="text" class="num_show fl" id="num_show" value="1">
+					<input type="text" class="num_show fl" id="num_show" name="count" value="1">
 					<a href="javascript:;" class="add fr" id="add">+</a>
 					<a href="javascript:;" class="minus fr" id="minus">-</a>
 				</div>
 			</div>
 			<div class="total">总价：<em>{{ sku.price }}</em>元</div>
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn" id="buy_btn">立即购买</a>
+                <input type="submit"  value="立即购买" class="buy_btn">
 				<a href="javascript:;" class="add_cart" sku_id="{{ sku.id }}" id="add_cart">加入购物车</a>
 			</div>
 		</div>
+        </form>
 	</div>
 
 	<div class="main_wrap clearfix">
@@ -137,38 +140,39 @@
 
 		var $to_x = $('#show_count').offset().top;
 		var $to_y = $('#show_count').offset().left;
-
-		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 		// 点击加入购物车
 		$('#add_cart').click(function(){
 		    // 将商品的id 和 数量发送给后端视图，保存到购物车数据中
+            $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});
             var req_data = {
                 sku_id: $('#add_cart').attr("sku_id"),
 				count: $("#num_show").val(),
 				csrfmiddlewaretoken: "{{ csrf_token }}"
 			};
 			// 使用ajax向后端发送数据
-{#            $.post("/cart/add", req_data, function (response_data) {#}
-{#				// 根据response_data中的code决定处理效果#}
-{#				if (1 == response_data.code) {#}
-{#				    // 用户未登录#}
-{#				    window.location.href = "/users/login";  // 让页面跳转到登录页面#}
-{#				} else if (0 == response_data.code) {#}
-{#				    // 添加到购物车成功#}
-{#					$(".add_jump").stop().animate({#}
-{#                        'left': $to_y+7,#}
-{#                        'top': $to_x+7},#}
-{#                        "fast", function() {#}
-{#                            $(".add_jump").fadeOut('fast',function(){#}
-{#                                $('#show_count').html(response_data.cart_num);#}
-{#                            });#}
-{#                    });#}
-{##}
-{#				} else {#}
-{#				    // 其他错误信息，alert展示#}
-{#				    alert(response_data.message);#}
-{#				}#}
-{#            }, "json");#}
+            $.post("/cart/add", req_data, function (response_data) {
+				// 根据response_data中的code决定处理效果
+				if (1 == response_data.code) {
+				    // 用户未登录
+				    window.location.href = "/users/login";  // 让页面跳转到登录页面
+				} else if (0 == response_data.code) {
+				    // 添加到购物车成
+                    $('#add_cart').click(function(){
+                        $(".add_jump").stop().animate({
+                            'left': $to_y+7,
+                            'top': $to_x+7},
+                            "fast", function() {
+                                $(".add_jump").fadeOut('fast',function(){
+                                    $('#show_count').html(response_data.cart_num);
+                                });
+
+                        });
+                    })
+				} else {
+				    // 其他错误信息，alert展示
+				    alert(response_data.message);
+				}
+            }, "json");
 		});
 		$("#add").click(function(){
 			var num_show = $("#num_show").val();

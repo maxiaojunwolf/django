@@ -53,9 +53,9 @@
 
         <div class="r_wrap fr clearfix">
             <div class="sort_bar">
-                <a href="{% url 'goods:list' category.id 1 %}?srot=default" {% if sort == 'default' %}class="active"{% endif %}>默认</a>
-                <a href="{% url 'goods:list' category.id 1 %}?srot=price" {% if sort == 'price' %}class="active"{% endif %}>价格</a>
-                <a href="{% url 'goods:list' category.id 1 %}?srot=hot" {% if sort == 'hot' %}class="active"{% endif %}>人气</a>
+                <a href="{% url 'goods:list' category.id 1 %}?sort=default" {% if sort == 'default' %}class="active"{% endif %}>默认</a>
+                <a href="{% url 'goods:list' category.id 1 %}?sort=price" {% if sort == 'price' %}class="active"{% endif %}>价格</a>
+                <a href="{% url 'goods:list' category.id 1 %}?sort=hot" {% if sort == 'hot' %}class="active"{% endif %}>人气</a>
             </div>
 
             <ul class="goods_type_list clearfix">
@@ -66,7 +66,7 @@
                     <div class="operate">
                         <span class="prize">￥{{ sku.price }}</span>
                         <span class="unit">{{ sku.price }}/{{ sku.unit }}</span>
-                        <a href="#" class="add_goods" title="加入购物车"></a>
+                        <a href="javascript:;" id="add_goods" class="add_goods" title="加入购物车" sku_id="{{ sku.id }}">加入</a>
                     </div>
                 </li>
                 {% endfor %}
@@ -89,3 +89,10 @@
     </div>
 
 {% endblock %}
+<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+	<script type="text/javascript">
+        $('.add_goods').click(function(){
+		    // 将商品的id 和 数量发送给后端视图，保存到购物车数据中
+            alert(12)
+		});
+    </script>
